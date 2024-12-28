@@ -1,6 +1,11 @@
 [] - build monorepo structure
+  [X] - api
 [] - build packages
-[] - logging
-[] - database
-[] - api
-[] - env
+  [] - logging
+  [] - database
+  [] - env
+  [] - rate limiting
+  [] - errors
+  [] - json formatting
+
+

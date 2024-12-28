@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  intake-service:
+    build: ./internal/intake
+    image: intake-service
+    container_name: intake-service
+    ports:
+      - "8080:8080"
+    networks:
+      - heartbeat-network
+networks:
+  heartbeat-network:
+    driver: bridge
