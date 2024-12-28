@@ -2,9 +2,12 @@ version: '3.8'
 
 services:
   intake-service:
-    build: ./internal/intake
+    build: .docker/local
     image: intake-service
     container_name: intake-service
+    volumes:
+      - ./internal:/internal
+    working_dir: /internal/intake
     ports:
       - "8080:8080"
     networks:
