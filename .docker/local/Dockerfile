@@ -1,4 +1,4 @@
-FROM golang:1.23.4
+FROM golang:1.21.4
 
 RUN go install github.com/cespare/reflex@v0.3.1
 COPY reflex.conf /

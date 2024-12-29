@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -57,7 +58,8 @@ func (app *application) run(mux http.Handler) error {
 		Handler: mux,
 	}
 
-	common.LogInfo("Server running on " + app.config.addr)
+	common.LogInfo("Starting server on " + app.config.addr)
+	log.Println("Server running on " + app.config.addr)
 
 	return srv.ListenAndServe()
 }

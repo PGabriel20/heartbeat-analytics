@@ -6,8 +6,8 @@ services:
     image: intake-service
     container_name: intake-service
     volumes:
-      - ./internal:/internal
-    working_dir: /internal/intake
+      - .:/app
+    working_dir: /app/internal/intake
     ports:
       - "8080:8080"
     networks:
