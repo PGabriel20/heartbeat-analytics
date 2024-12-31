@@ -1,20 +1,20 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
 
-	"github.com/PGabriel20/heartbeat-analytics/internal/common"
 	"github.com/PGabriel20/heartbeat-analytics/internal/intake/infra/handler"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"go.uber.org/zap"
 )
 
 //Api configuration
 type application struct {
 	config config
+	logger *zap.SugaredLogger
 	healthHandler *handler.HealthHandler
 	eventHandler *handler.EventHandler
 }
@@ -58,8 +58,7 @@ func (app *application) run(mux http.Handler) error {
 		Handler: mux,
 	}
 
-	common.LogInfo("Starting server on " + app.config.addr)
-	log.Println("Server running on " + app.config.addr)
+	app.logger.Infof("Server running on " + app.config.addr)
 
 	return srv.ListenAndServe()
 }

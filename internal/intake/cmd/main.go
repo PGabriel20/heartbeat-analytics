@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-
+	"github.com/PGabriel20/heartbeat-analytics/internal/common"
 	"github.com/PGabriel20/heartbeat-analytics/internal/intake/infra/handler"
 )
 
@@ -11,16 +10,19 @@ func main() {
 		addr: ":8080",
 	}
 
+	logger := common.NewLogger()
+
 	healthHandler := handler.NewHealthHandler()
 	eventHandler := handler.NewEventHandler()
 
 	app := &application{
 		config: cfg,
+		logger: logger,
 		healthHandler: healthHandler,
 		eventHandler: eventHandler,
 	}
 
 	mux := app.mount()
 
-	log.Fatal(app.run(mux))
+	logger.Fatal(app.run(mux))
 }
