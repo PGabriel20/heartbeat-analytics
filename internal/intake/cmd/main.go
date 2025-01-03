@@ -12,7 +12,7 @@ func main() {
 
 	logger := common.NewLogger()
 
-	healthHandler := handler.NewHealthHandler()
+	healthHandler := handler.NewHealthHandler(logger)
 	eventHandler := handler.NewEventHandler()
 
 	app := &application{
