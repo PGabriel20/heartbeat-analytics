@@ -8,10 +8,34 @@ services:
     volumes:
       - .:/app
     working_dir: /app/internal/intake
+    depends_on:
+      - rabbitmq
     ports:
       - "8080:8080"
     networks:
       - heartbeat-network
+
+  analytics-service:
+    build: .docker/local
+    image: analytics-service
+    container_name: analytics-service
+    volumes:
+      - .:/app
+    working_dir: /app/internal/analytics
+    depends_on:
+      - rabbitmq
+    networks:
+      - heartbeat-network
+
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - heartbeat-network
+    
 networks:
   heartbeat-network:
     driver: bridge

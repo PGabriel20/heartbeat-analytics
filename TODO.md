@@ -1,8 +1,9 @@
 ##General
-- [ ] build monorepo structure
+- [X] build monorepo structure
 - [ ] logging
 - [ ] database
-- [ ] RMQ
+- [X] RMQ
+- [ ] Abstract RMQ into package
 - [ ] env package
 - [ ] rate limiting
 - [ ] errors

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/PGabriel20/heartbeat-analytics/internal/intake/infra/handler"
+	"github.com/PGabriel20/heartbeat-analytics/internal/intake/handler"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
