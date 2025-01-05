@@ -82,46 +82,6 @@ func (r *RabbitMQ) BindQueue(queueName, exchangeName, routingKey string) error {
 	return nil
 }
 
-// Publish publishes a message to the specified exchange with a routing key
-func (r *RabbitMQ) Publish(exchangeName, routingKey string, body []byte) error {
-	err := r.Channel.Publish(
-		exchangeName,
-		routingKey,
-		false, // mandatory
-		false, // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        body,
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to publish message: %w", err)
-	}
-	return nil
-}
-
-// Consume sets up a consumer on the specified queue and sends messages to the output channel
-func (r *RabbitMQ) Consume(queueName string, consumerKey string, out chan<- amqp.Delivery) error {
-	msgs, err := r.Channel.Consume(
-		queueName,
-		consumerKey,
-		false, // auto-ack
-		false, // exclusive
-		false, // no-local (not used by RabbitMQ)
-		false, // no-wait
-		nil,   // arguments
-	)
-	if err != nil {
-		return fmt.Errorf("failed to start consuming: %w", err)
-	}
-	go func() {
-		for msg := range msgs {
-			out <- msg
-		}
-	}()
-	return nil
-}
-
 // Close cleans up the connection and channel
 func (r *RabbitMQ) Close() {
 	if r.Channel != nil {

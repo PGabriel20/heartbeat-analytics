@@ -16,11 +16,18 @@ func main() {
 	defer rmq.Close()
 
 	out := make(chan amqp091.Delivery)
-	consumerTag := "analytics-service-consumer"
+	consumerKey := "analytics-service-consumer"
 
-	err = rmq.Consume("events-queue", consumerTag, out)
+	consumer, err := rabbitmq.NewRabbitMQConsumer(rmq)
 	if err != nil {
 		log.Fatalf("Error starting consumer: %v", err)
+	}
+	
+	err = consumer.Consume("events-queue", consumerKey, out)
+	if err != nil {
+		log.Fatalf("Error consuming queue: %v", err)
+	} else {
+		log.Printf("Consuming")
 	}
 
 	go func() {

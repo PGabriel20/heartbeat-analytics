@@ -1,18 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 
 	"github.com/PGabriel20/heartbeat-analytics/internal/common/rabbitmq"
 	"github.com/PGabriel20/heartbeat-analytics/internal/intake/handler"
 )
-
-type Event struct {
-	EventType string 	`json:"event_type"`
-	VisitorId string	`json:"visitor_id"`
-	SessionId string	`json:"session_id"`
-}
 
 func main() {
 	cfg := config{
@@ -46,27 +39,13 @@ func main() {
 		log.Fatalf("Error binding queue: %v", err)
 	}
 
-	event := Event{
-		EventType: "pageview",
-		VisitorId: "123",
-		SessionId: "456",
-	}
-
-	body, err := json.Marshal(event)
+	publisher, err := rabbitmq.NewRabbitMQPublisher(rmq)
 	if err != nil {
-		log.Fatalf("Failed to marshal event: %v ", err)
-	}
- 
-	// Publish a message
-	err = rmq.Publish(exchange, "events.intake", body)
-	if err != nil {
-		log.Fatalf("Error publishing message: %v", err)
-	} else {
-		log.Printf("Published event: %s", body)
+		log.Fatalf("Failed to build publisher: %v", err)
 	}
 
 	healthHandler := handler.NewHealthHandler()
-	eventHandler := handler.NewEventHandler()
+	eventHandler := handler.NewEventHandler(publisher)
 
 	app := &application{
 		config: cfg,
