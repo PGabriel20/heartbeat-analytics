@@ -1,10 +1,10 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"time"
 
-	"github.com/PGabriel20/heartbeat-analytics/internal/common"
 	"github.com/PGabriel20/heartbeat-analytics/internal/intake/infra/handler"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,7 +14,6 @@ import (
 //Api configuration
 type application struct {
 	config config
-	logger *common.ZapLogger
 	healthHandler *handler.HealthHandler
 	eventHandler *handler.EventHandler
 }
@@ -28,7 +27,7 @@ func(app *application) mount() http.Handler {
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
+	//r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -58,7 +57,7 @@ func (app *application) run(mux http.Handler) error {
 		Handler: mux,
 	}
 
-	app.logger.Info("Server running on " + app.config.addr)
+	log.Print("Starting server on " + app.config.addr)
 
 	return srv.ListenAndServe()
 }

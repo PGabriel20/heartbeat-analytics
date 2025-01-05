@@ -3,7 +3,7 @@
     'use strict'
 
     var clientDomain = document.currentScript.getAttribute('client-domain');
-    var apiUrl = 'http://localhost:3000/api/intake';
+    var apiUrl = 'http://localhost:8080/v1/intake';
     var location = window.location
     var lastPage;
 
