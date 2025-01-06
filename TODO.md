@@ -3,10 +3,12 @@
 - [ ] logging
 - [ ] database
 - [X] RMQ
-- [ ] Abstract RMQ into package
+- [X] Abstract RMQ into package
+- [ ] Create RMQ config struct
+- [ ] Log consumed and published events
+- [ ] Custom errors
+- [ ] json formatting
 - [ ] env package
 - [ ] rate limiting
-- [ ] errors
-- [ ] json formatting
-
+- [ ] validations
 
