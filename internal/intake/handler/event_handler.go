@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -26,7 +26,7 @@ func (h *EventHandler) IntakeEvent(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&dto)
 	if err != nil {
-		log.Printf("Error decoding request body: %v", err)
+		slog.Error(err.Error())
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
@@ -39,10 +39,12 @@ func (h *EventHandler) IntakeEvent(w http.ResponseWriter, r *http.Request) {
 	err = usecase.Execute(dto)
 
 	if err != nil {
-		log.Printf("Error processing event: %v", err)
+		slog.Error(err.Error())
 		http.Error(w, "Failed to process event", http.StatusInternalServerError)
 		return
 	}
+
+	slog.Info("Event intaked successfully", slog.Any("event", dto))
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))

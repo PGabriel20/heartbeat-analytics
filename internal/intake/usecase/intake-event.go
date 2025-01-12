@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 
 	"github.com/PGabriel20/heartbeat-analytics/internal/common/broker"
 	"github.com/PGabriel20/heartbeat-analytics/internal/common/entity"
@@ -53,11 +53,10 @@ func (u *IntakeEventUseCase) Execute(input IntakeEventInputDto) error {
 	}
 
 	err = u.Publisher.Publish("events-exchange", "events.intake", body)
-	if err != nil {
-		return err
-	}
 
-	log.Printf("Event sent: %s", body)
+	if err != nil {
+		return fmt.Errorf("failed to intake event: %w", err)
+	}
 
 	return nil
 }

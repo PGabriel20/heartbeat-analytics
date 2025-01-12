@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"log/slog"
 
+	"github.com/PGabriel20/heartbeat-analytics/internal/common/logs"
 	"github.com/PGabriel20/heartbeat-analytics/internal/common/rabbitmq"
 	"github.com/PGabriel20/heartbeat-analytics/internal/intake/handler"
 )
@@ -11,6 +13,8 @@ func main() {
 	cfg := config{
 		addr: ":8080",
 	}
+
+	logs.InitLogger()
 
 	//Setup connection
 	rmq, err := rabbitmq.OpenConnection("guest", "guest", "rabbitmq", "5672")
@@ -54,5 +58,10 @@ func main() {
 	}
 
 	mux := app.mount()
-	log.Fatal(app.run(mux))
+
+	err = app.run(mux)
+
+	if(err != nil) {
+		slog.Error(err.Error())
+	}
 }
