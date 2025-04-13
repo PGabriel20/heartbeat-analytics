@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: heartbeat_postgres
+    environment:
+      POSTGRES_USER: heartbeat
+      POSTGRES_PASSWORD: heartbeat123
+      POSTGRES_DB: heartbeat_analytics
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heartbeat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: heartbeat_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: heartbeat
+      RABBITMQ_DEFAULT_PASS: heartbeat123
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management interface port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  events:
+    build: 
+      context: .
+      dockerfile: ./apps/events/Dockerfile
+      target: development
+    command: pnpm run start:dev events
+    container_name: events
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - RABBITMQ_URL=amqp://heartbeat:heartbeat123@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+
+  analytics:
+    build: 
+      context: .
+      dockerfile: ./apps/analytics/Dockerfile
+      target: development
+    command: pnpm run start:dev analytics
+    container_name: analytics
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - RABBITMQ_URL=amqp://heartbeat:heartbeat123@rabbitmq:5672
+      - DATABASE_URL=postgresql://heartbeat:heartbeat123@postgres:5432/heartbeat_analytics
+    depends_on:
+      - postgres
+      - rabbitmq
+
+volumes:
+  postgres_data:
+  rabbitmq_data: 
