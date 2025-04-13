@@ -1,26 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
+import { Injectable, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { EventDto } from './dto/event.dto';
 
 @Injectable()
 export class EventsService {
-  create(createEventDto: CreateEventDto) {
-    return 'This action adds a new event';
-  }
+  constructor(
+    @Inject('ANALYTICS_SERVICE') private readonly analyticsClient: ClientProxy,
+  ) {}
 
-  findAll() {
-    return `This action returns all events`;
-  }
+  async intakeEvent(event: EventDto) {
+    // Publica o evento para o serviço de analytics
+    this.analyticsClient.emit('event_created', event);
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
-  }
-
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+    // Retorna uma resposta imediata para o cliente
+    return {
+      success: true,
+      message: 'Event received successfully',
+      timestamp: new Date(),
+    };
   }
 }

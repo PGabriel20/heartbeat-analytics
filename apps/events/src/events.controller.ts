@@ -1,34 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Headers, Ip } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
+import { EventDto } from './dto/event.dto';
 
-@Controller('events')
+@Controller('intake')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  async intakeEvent(
+    @Body() eventDto: EventDto,
+    @Headers('user-agent') userAgent: string,
+    @Ip() ip: string,
+  ) {
+    // Enrich event with additional data
+    const enrichedEvent = {
+      ...eventDto,
+      timestamp: new Date().toISOString(),
+      ip_address: ip,
+      user_agent: userAgent,
+      device_info: this.parseUserAgent(userAgent),
+    };
+
+    await this.eventsService.intakeEvent(enrichedEvent);
+    return { status: 'ok' };
   }
 
-  @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  private parseUserAgent(userAgent: string) {
+    // Basic device detection - in production you might want to use a proper UA parser library
+    const isMobile = /mobile|android|iphone|ipad|ipod/i.test(userAgent.toLowerCase());
+    const isTablet = /tablet|ipad/i.test(userAgent.toLowerCase());
+    
+    return {
+      type: isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop',
+      raw: userAgent,
+    };
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(+id, updateEventDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(+id);
-  }
-}
+} 
