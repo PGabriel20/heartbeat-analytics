@@ -41,7 +41,7 @@ services:
       dockerfile: ./apps/events/Dockerfile
       target: development
     command: pnpm run start:dev events
-    container_name: events
+    container_name: heartbeat_events
     ports:
       - "3000:3000"
     volumes:
@@ -59,7 +59,7 @@ services:
       dockerfile: ./apps/analytics/Dockerfile
       target: development
     command: pnpm run start:dev analytics
-    container_name: analytics
+    container_name: heartbeat_analytics
     ports:
       - "3001:3001"
     volumes:
@@ -67,11 +67,17 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=heartbeat
+      - DB_PASSWORD=heartbeat123
+      - DB_NAME=heartbeat_analytics
       - RABBITMQ_URL=amqp://heartbeat:heartbeat123@rabbitmq:5672
-      - DATABASE_URL=postgresql://heartbeat:heartbeat123@postgres:5432/heartbeat_analytics
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
 volumes:
   postgres_data:
