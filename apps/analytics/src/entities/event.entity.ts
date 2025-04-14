@@ -50,6 +50,9 @@ export class Event {
   @Column({ nullable: true })
   location: string;
 
+  @Column({ name: 'triggered_at', type: 'timestamp' })
+  triggeredAt: Date;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, Repository } from 'typeorm';
+import { Between, In, MoreThan, Repository } from 'typeorm';
 import { Site } from './entities/site.entity';
 import { Session } from './entities/session.entity';
 import { Visitor } from './entities/visitor.entity';
 import { Event } from './entities/event.entity';
 import { Metric } from './entities/metric.entity';
+import { EnrichedEventDto } from '@app/common';
 
 @Injectable()
 export class AnalyticsService {
@@ -22,65 +23,70 @@ export class AnalyticsService {
     private metricRepository: Repository<Metric>,
   ) {}
 
-  async processEvent(event: any) {
+  async processEvent(event: EnrichedEventDto) {
     console.log({rmqEvent: event})
 
     // 1. Ensure site exists
-    // let site = await this.siteRepository.findOne({ where: { domain: event.domain } });
-    // if (!site) {
-    //   site = await this.siteRepository.save({
-    //     domain: event.domain,
-    //   });
-    // }
+    let site = await this.siteRepository.findOne({ where: { domain: event.domain } });
+    if (!site) {
+      site = await this.siteRepository.save({
+        domain: event.domain,
+      });
+    }
 
     // // 2. Update or create visitor
-    // let visitor = await this.visitorRepository.findOne({
-    //   where: { siteId: site.id, externalId: event.visitor_id },
-    // });
+    let visitor = await this.visitorRepository.findOne({
+      where: { siteId: site.id, externalId: event.visitor_id },
+    });
 
-    // if (!visitor) {
-    //   visitor = await this.visitorRepository.save({
-    //     siteId: site.id,
-    //     externalId: event.visitor_id,
-    //     firstSeen: new Date(),
-    //     lastSeen: new Date(),
-    //     device: {
-    //       userAgent: event.user_agent,
-    //       type: event.device_info?.type,
-    //     },
-    //   });
-    // } else {
-    //   await this.visitorRepository.update(visitor.id, {
-    //     lastSeen: new Date(),
-    //   });
-    // }
+    if (!visitor) {
+      visitor = await this.visitorRepository.save({
+        siteId: site.id,
+        externalId: event.visitor_id,
+        firstSeen: new Date(event.timestamp),
+        lastSeen: new Date(event.timestamp),
+        device: {
+          userAgent: event.user_agent,
+          type: event.device_info?.type,
+        },
+      });
+    } else {
+      await this.visitorRepository.update(visitor.id, {
+        lastSeen: new Date(event.timestamp),
+      });
+    }
 
     // // 3. Update or create session
-    // let session = await this.sessionRepository.findOne({
-    //   where: { siteId: site.id, externalId: event.session_id },
-    // });
+    let session = await this.sessionRepository.findOne({
+      where: { siteId: site.id, externalId: event.session_id },
+    });
 
-    // if (!session) {
-    //   session = await this.sessionRepository.save({
-    //     siteId: site.id,
-    //     visitorId: visitor.id,
-    //     externalId: event.session_id,
-    //     duration: 0,
-    //   });
-    // }
+    if (!session) {
+      session = await this.sessionRepository.save({
+        siteId: site.id,
+        visitorId: visitor.id,
+        externalId: event.session_id,
+        duration: 0,
+      });
+    }
 
+    try {
+      await this.eventRepository.save({
+        siteId: site.id,
+        sessionId: session.id,
+        visitorId: visitor.id,
+        eventType: event.event_type,
+        referrerUrl: event.referrer_url,
+        browser: event.user_agent,
+        screenSize: event.screen_size,
+        operatingSystem: event.operating_system,
+        location: event.location,
+        triggeredAt: event.triggered_at
+      });
+    } catch (error) {
+      console.error(error)      
+    }
     // // 4. Save event
-    // await this.eventRepository.save({
-    //   siteId: site.id,
-    //   sessionId: session.id,
-    //   visitorId: visitor.id,
-    //   eventType: event.event_type,
-    //   referrerUrl: event.referrer_url,
-    //   browser: event.user_agent,
-    //   screenSize: event.screen_size,
-    //   operatingSystem: event.operating_system,
-    //   location: event.location,
-    // });
 
     // // 5. Calculate and update metrics
     // await this.calculateMetrics(site.id);
@@ -258,14 +264,14 @@ export class AnalyticsService {
 
   private async calculatePageSegmentation(siteId: string) {
     // Get all unique pages
-    // const pages = await this.eventRepository
-    //   .createQueryBuilder('event')
-    //   .select('DISTINCT event.page_url')
-    //   .where('event.siteId = :siteId', { siteId })
-    //   .andWhere('event.eventType = :eventType', { eventType: 'pageview' })
-    //   .getRawMany();
+    const pages = await this.eventRepository
+      .createQueryBuilder('event')
+      .select('DISTINCT event.page_url')
+      .where('event.siteId = :siteId', { siteId })
+      .andWhere('event.eventType = :eventType', { eventType: 'pageview' })
+      .getRawMany();
 
-    // const metrics = {};
+    const metrics = {};
 
     // for (const { page_url } of pages) {
     //   const pageEvents = await this.eventRepository.find({
@@ -312,7 +318,7 @@ export class AnalyticsService {
     //   };
     // }
 
-    // return metrics;
+    return metrics;
   }
 
   async getMetrics(
@@ -383,34 +389,34 @@ export class AnalyticsService {
   }
 
   private aggregateMetrics(metrics: any[]) {
-    // const aggregated = {
-    //   pageviews: 0,
-    //   uniqueVisitors: new Set(),
-    //   totalSessions: 0,
-    //   bounceRate: 0,
-    //   avgSessionDuration: 0,
-    // };
+    const aggregated = {
+      pageviews: 0,
+      uniqueVisitors: new Set(),
+      totalSessions: 0,
+      bounceRate: 0,
+      avgSessionDuration: 0,
+    };
 
-    // metrics.forEach(metric => {
-    //   aggregated.pageviews += metric.metrics.pageviews;
-    //   // Assuming uniqueVisitors in each metric contains unique IDs
-    //   metric.metrics.uniqueVisitors.forEach((visitor: string) => 
-    //     aggregated.uniqueVisitors.add(visitor)
-    //   );
-    //   aggregated.totalSessions += metric.metrics.totalSessions;
-    //   aggregated.avgSessionDuration += metric.metrics.avgSessionDuration;
-    // });
+    metrics.forEach(metric => {
+      aggregated.pageviews += metric.metrics.pageviews;
+      // Assuming uniqueVisitors in each metric contains unique IDs
+      metric.metrics.uniqueVisitors.forEach((visitor: string) => 
+        aggregated.uniqueVisitors.add(visitor)
+      );
+      aggregated.totalSessions += metric.metrics.totalSessions;
+      aggregated.avgSessionDuration += metric.metrics.avgSessionDuration;
+    });
 
-    // // Calculate averages
-    // if (metrics.length > 0) {
-    //   aggregated.bounceRate = metrics.reduce((acc, curr) => 
-    //     acc + curr.metrics.bounceRate, 0) / metrics.length;
-    //   aggregated.avgSessionDuration = aggregated.avgSessionDuration / metrics.length;
-    // }
+    // Calculate averages
+    if (metrics.length > 0) {
+      aggregated.bounceRate = metrics.reduce((acc, curr) => 
+        acc + curr.metrics.bounceRate, 0) / metrics.length;
+      aggregated.avgSessionDuration = aggregated.avgSessionDuration / metrics.length;
+    }
 
-    // // Convert Set to count for uniqueVisitors
+    // Convert Set to count for uniqueVisitors
     // aggregated.uniqueVisitors = aggregated.uniqueVisitors.size;
 
-    // return aggregated;
+    return aggregated;
   }
 } 

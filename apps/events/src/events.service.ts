@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { EventDto } from './dto/event.dto';
+import { EnrichedEventDto } from '@app/common';
 
 @Injectable()
 export class EventsService {
@@ -8,7 +8,7 @@ export class EventsService {
     @Inject('ANALYTICS_SERVICE') private readonly analyticsClient: ClientProxy,
   ) {}
 
-  async intakeEvent(event: EventDto) {
+  async intakeEvent(event: EnrichedEventDto) {
     // Publica o evento para o serviço de analytics
     this.analyticsClient.emit('event_created', event);
 

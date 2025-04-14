@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Headers, Ip } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { EventDto } from './dto/event.dto';
+import { BaseEventDto, EnrichedEventDto } from '@app/common';
 
 @Controller('intake')
 export class EventsController {
@@ -8,14 +8,15 @@ export class EventsController {
 
   @Post()
   async intakeEvent(
-    @Body() eventDto: EventDto,
+    @Body() eventDto: BaseEventDto,
     @Headers('user-agent') userAgent: string,
     @Ip() ip: string,
   ) {
     // Enrich event with additional data
-    const enrichedEvent = {
+    const enrichedEvent: EnrichedEventDto = {
       ...eventDto,
-      timestamp: new Date().toISOString(),
+      triggered_at: new Date(),
+      timestamp: new Date(),
       ip_address: ip,
       user_agent: userAgent,
       device_info: this.parseUserAgent(userAgent),
@@ -33,6 +34,6 @@ export class EventsController {
     return {
       type: isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop',
       raw: userAgent,
-    };
+    } as const;
   }
 } 

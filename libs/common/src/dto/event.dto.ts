@@ -1,6 +1,6 @@
-import { IsObject, IsOptional, IsString, IsUrl } from "class-validator";
+import { IsObject, IsOptional, IsString, IsUrl, IsDate } from 'class-validator';
 
-export class EventDto {
+export class BaseEventDto {
   @IsString()
   event_type: string;
 
@@ -19,6 +19,7 @@ export class EventDto {
 
   @IsString()
   @IsUrl()
+  @IsOptional()
   referrer_url?: string;
 
   @IsString()
@@ -40,4 +41,24 @@ export class EventDto {
   @IsObject()
   @IsOptional()
   metadata?: Record<string, any>;
+}
+
+export class EnrichedEventDto extends BaseEventDto {
+  @IsDate()
+  triggered_at: Date
+
+  @IsDate()
+  timestamp: Date;
+
+  @IsString()
+  ip_address: string;
+
+  @IsString()
+  user_agent: string;
+
+  @IsObject()
+  device_info: {
+    type: 'mobile' | 'tablet' | 'desktop';
+    raw: string;
+  };
 } 

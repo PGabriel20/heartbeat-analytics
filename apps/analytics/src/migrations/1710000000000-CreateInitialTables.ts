@@ -55,6 +55,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
                 "screen_size" varchar,
                 "operating_system" varchar,
                 "location" varchar,
+                "triggered_at" TIMESTAMP NOT NULL,
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT "fk_events_site" FOREIGN KEY ("site_id") REFERENCES "sites"("id"),
