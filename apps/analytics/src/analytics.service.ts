@@ -89,7 +89,7 @@ export class AnalyticsService {
     // // 4. Save event
 
     // // 5. Calculate and update metrics
-    // await this.calculateMetrics(site.id);
+    //await this.calculateMetrics(site.id);
   }
 
   private async calculateMetrics(siteId: string) {
