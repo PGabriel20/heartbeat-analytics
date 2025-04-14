@@ -1,0 +1,68 @@
+@baseUrl = http://localhost:3000/v1
+@domain = example.com
+
+### Enviar evento de pageview
+POST {{baseUrl}}/intake
+Content-Type: application/json
+
+{
+    "event_type": "pageview",
+    "domain": "{{domain}}",
+    "page_url": "https://{{domain}}/home",
+    "referrer_url": "https://google.com",
+    "visitor_id": "123e4567-e89b-12d3-a456-426614174000",
+    "session_id": "987fcdeb-51a2-43d7-9876-543210987000",
+    "screen_size": "1920x1080",
+    "metadata": {
+        "language": "pt-BR",
+        "theme": "dark"
+    }
+}
+
+### Enviar evento de clique
+POST {{baseUrl}}/intake
+Content-Type: application/json
+
+{
+    "event_type": "click",
+    "domain": "{{domain}}",
+    "page_url": "https://{{domain}}/products",
+    "visitor_id": "123e4567-e89b-12d3-a456-426614174000",
+    "session_id": "987fcdeb-51a2-43d7-9876-543210987000",
+    "metadata": {
+        "element_id": "buy-button",
+        "element_text": "Comprar agora"
+    }
+}
+
+### Enviar evento de formulário
+POST {{baseUrl}}/intake
+Content-Type: application/json
+
+{
+    "event_type": "form_submit",
+    "domain": "{{domain}}",
+    "page_url": "https://{{domain}}/contact",
+    "visitor_id": "123e4567-e89b-12d3-a456-426614174000",
+    "session_id": "987fcdeb-51a2-43d7-9876-543210987000",
+    "metadata": {
+        "form_id": "contact-form",
+        "form_fields": ["name", "email", "message"]
+    }
+}
+
+### Enviar evento de scroll
+POST {{baseUrl}}/intake
+Content-Type: application/json
+
+{
+    "event_type": "scroll",
+    "domain": "{{domain}}",
+    "page_url": "https://{{domain}}/blog/post-1",
+    "visitor_id": "123e4567-e89b-12d3-a456-426614174000",
+    "session_id": "987fcdeb-51a2-43d7-9876-543210987000",
+    "metadata": {
+        "scroll_depth": 75,
+        "scroll_direction": "down"
+    }
+} 
