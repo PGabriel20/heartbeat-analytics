@@ -1,108 +1,110 @@
 # Heartbeat Analytics Platform
 
-Heartbeat Analytics é uma plataforma de analytics em tempo real construída com arquitetura de microserviços usando NestJS. A plataforma permite rastrear e analisar o comportamento dos usuários em websites através de eventos.
+Heartbeat Analytics is a real-time analytics platform built with a microservices architecture using NestJS. The platform allows tracking and analyzing user behavior on websites through events.
 
 ## Dashboard
 
-### Visão Geral de Métricas
+### Metrics Overview
 ![Dashboard Overview](./docs/images/dashboard-overview-top.png)
 
-*Dashboard mostrando métricas principais incluindo visitantes únicos, total de visitas, pageviews, taxa de rejeição e duração média da visita*
+*Dashboard showing key metrics including unique visitors, total visits, pageviews, bounce rate, and average visit duration*
 
-### Análise Detalhada
+### Detailed Analysis
 ![Dashboard Details](./docs/images/dashboard-details.png)
 
-*Visualização detalhada mostrando fontes de tráfego, páginas de saída, distribuição geográfica e dados de dispositivos/navegadores*
+*Detailed visualization showing traffic sources, exit pages, geographic distribution, and device/browser data*
 
-## Principais Recursos do Dashboard
+**Front-End Repository:** https://github.com/PGabriel20/heartbeat-analytics-client
 
-- **Métricas**:
-  - Visitantes únicos
-  - Total de visitas
-  - Total de pageviews
-  - Views por visita
-  - Taxa de rejeição
-  - Duração média da visita
+## Dashboard Key Features
 
-- **Análise de Fontes**:
-  - Tráfego direto
-  - Busca orgânica (Google)
-  - Referências (Hacker News, Twitter, GitHub)
+- **Metrics**:
+  - Unique visitors
+  - Total visits
+  - Total pageviews
+  - Views per visit
+  - Bounce rate
+  - Average visit duration
 
-- **Dados Geográficos**:
-  - Distribuição por cidades
-  - Cobertura global
-  - Análise por região
+- **Source Analysis**:
+  - Direct traffic
+  - Organic search (Google)
+  - Referrals (Hacker News, Twitter, GitHub)
 
-- **Informações Técnicas**:
-  - Distribuição de navegadores
-  - Tipos de dispositivos
-  - Sistemas operacionais
+- **Geographic Data**:
+  - City distribution
+  - Global coverage
+  - Regional analysis
 
-## Arquitetura
+- **Technical Information**:
+  - Browser distribution
+  - Device types
+  - Operating systems
 
-O projeto é composto por três componentes principais:
+## Architecture
 
-### 1. Script de Rastreamento (`heartbeat.js`)
+The project consists of three main components:
 
-Um script leve de JavaScript que pode ser incorporado em qualquer website para rastrear eventos dos usuários:
+### 1. Tracking Script (`heartbeat.js`)
 
-- Rastreia automaticamente pageviews
-- Captura informações do usuário e da sessão
-- Coleta dados do dispositivo e navegador
-- Envia eventos para o serviço de eventos via HTTP
+A lightweight JavaScript script that can be embedded in any website to track user events:
 
-### 2. Serviço de Eventos (`@apps/events`)
+- Automatically tracks pageviews
+- Captures user and session information
+- Collects device and browser data
+- Sends events to the events service via HTTP
 
-Microserviço responsável por receber e processar eventos brutos:
+### 2. Events Service (`@apps/events`)
 
-- Recebe eventos HTTP do script de rastreamento
-- Enriquece eventos com informações adicionais (geolocalização, device info)
-- Valida e normaliza dados dos eventos
-- Publica eventos processados para o RabbitMQ
-- Armazena eventos brutos no PostgreSQL
+Microservice responsible for receiving and processing raw events:
 
-### 3. Serviço de Analytics (`@apps/analytics`)
+- Receives HTTP events from the tracking script
+- Enriches events with additional information (geolocation, device info)
+- Validates and normalizes event data
+- Publishes processed events to RabbitMQ
+- Stores raw events in PostgreSQL
 
-Microserviço responsável por processar e agregar métricas:
+### 3. Analytics Service (`@apps/analytics`)
 
-- Consome eventos do RabbitMQ
-- Mantém estado de visitantes e sessões
-- Calcula e armazena histórico de métricas
-- Fornece API para consulta de métricas
-- Armazena métricas agregadas no PostgreSQL
+Microservice responsible for processing and aggregating metrics:
 
-## Tecnologias Utilizadas
+- Consumes events from RabbitMQ
+- Maintains visitor and session state
+- Calculates and stores metric history
+- Provides API for querying metrics
+- Stores aggregated metrics in PostgreSQL
+
+## Technologies Used
 
 - NestJS (Framework)
-- PostgreSQL (Banco de dados)
+- PostgreSQL (Database)
 - RabbitMQ (Message Broker)
 - TypeORM (ORM)
 - Docker & Docker Compose
 - TypeScript
 
-## Como Executar
+## How to Run
 
-### Pré-requisitos
+### Prerequisites
 
-- Docker e Docker Compose
+- Docker and Docker Compose
 - Node.js (v16+)
-- pnpm (recomendado) ou npm
+- pnpm (recommended) or npm
 
-### Configuração
+### Setup
 
-1. Clone o repositório:
+1. Clone the repository:
 ```bash
-git clone https://github.com/seu-usuario/heartbeat-analytics.git
+git clone https://github.com/your-username/heartbeat-analytics.git
 cd heartbeat-analytics
 ```
 
-2. Instale as dependências:
+2. Install dependencies:
 ```bash
 pnpm install
 ```
 
-3. Crie um arquivo `.env` na raiz do projeto:
+3. Create a `.env` file in the project root:
 ```env
 # Database
 POSTGRES_USER=postgres
@@ -115,28 +117,28 @@ RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/heartbeat
 ```
 
-### Executando com Docker
+### Running with Docker
 
-1. Inicie os containers:
+1. Start the containers:
 ```bash
 docker-compose up -d
 ```
 
-2. Execute as migrações do banco de dados:
+2. Run database migrations:
 ```bash
 pnpm migration:run
 ```
 
-3. Os serviços estarão disponíveis em:
+3. Services will be available at:
 - Events Service: http://localhost:3000
 - Analytics Service: http://localhost:3001
 
-### Testando a API
+### Testing the API
 
-O projeto inclui um arquivo `api.http` que pode ser usado com a extensão REST Client do VS Code para testar as endpoints:
+The project includes an `api.http` file that can be used with VS Code's REST Client extension to test the endpoints:
 
 ```http
-### Enviar evento
+### Send event
 POST http://localhost:3000/events
 Content-Type: application/json
 
@@ -148,24 +150,24 @@ Content-Type: application/json
   "domain": "example.com"
 }
 
-### Consultar métricas
+### Query metrics
 GET http://localhost:3001/analytics/metrics?siteId=123
 ```
 
-## Integrando o Script de Rastreamento
+## Integrating the Tracking Script
 
-Adicione o seguinte código ao seu website:
+Add the following code to your website:
 
 ```html
-<script src="https://seu-dominio.com/heartbeat.js"></script>
+<script src="https://your-domain.com/heartbeat.js"></script>
 <script>
   Heartbeat.init({
-    domain: 'seu-dominio.com'
+    domain: 'your-domain.com'
   });
 </script>
 ```
 
-## Estrutura do Projeto
+## Project Structure
 
 ```bash
 $ pnpm install
@@ -187,28 +189,28 @@ $ pnpm run start:prod
 
 ## Roadmap
 
-As seguintes features estão planejadas para implementação futura:
+As following features are planned for future implementation:
 
 ### Resiliência e Escalabilidade
-- **Circuit Breaker**: Implementação de padrão circuit breaker para melhor tolerância a falhas
-- **Replicação de Banco de Dados**: Separação entre banco Master (Write) e Réplicas (Read) para melhor performance
-- **API Gateway**: Centralização do roteamento de requisições e políticas de segurança
+- **Circuit Breaker**: Implementation of circuit breaker pattern for better fault tolerance
+- **Replicação de Banco de Dados**: Separation between Master (Write) and Réplicas (Read) for better performance
+- **API Gateway**: Centralization of request routing and security policies
 
 ### Observabilidade
 - **Logging Aprimorado**: 
-  - Implementação de logging estruturado
-  - Agregação centralizada de logs
-  - Rastreamento de requisições entre serviços
-  - Tracing distribuído
+  - Implementation of structured logging
+  - Centralized logs aggregation
+  - Request tracing between services
+  - Distributed tracing
 
 ### Performance
-- Otimização de queries
-- Implementação de caching
+- Queries optimization
+- Implementation of caching
 
 ### Segurança
 - Rate limiting
-- Autenticação e autorização aprimoradas
-- Proteção contra DDoS
+- Improved authentication and authorization
+- Protection against DDoS
 
 
 ## Support
