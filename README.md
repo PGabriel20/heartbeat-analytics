@@ -1,6 +1,6 @@
 # Heartbeat Analytics Platform
 
-Heartbeat Analytics is a real-time analytics platform built with a microservices architecture using NestJS. The platform allows tracking and analyzing user behavior on websites through events.
+Heartbeat Analytics is an analytics platform built with a microservices architecture using NestJS. The platform allows tracking and analyzing user behavior on websites through events.
 
 ## Dashboard
 
