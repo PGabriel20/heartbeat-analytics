@@ -191,27 +191,26 @@ $ pnpm run start:prod
 
 As following features are planned for future implementation:
 
-### Resiliência e Escalabilidade
+# Resilience and Scalability
 - **Circuit Breaker**: Implementation of circuit breaker pattern for better fault tolerance
-- **Replicação de Banco de Dados**: Separation between Master (Write) and Réplicas (Read) for better performance
+- **Database Replication**: Separation between Master (Write) and Replicas (Read) for better performance
 - **API Gateway**: Centralization of request routing and security policies
 
-### Observabilidade
-- **Logging Aprimorado**: 
+# Observability
+- **Enhanced Logging**: 
   - Implementation of structured logging
   - Centralized logs aggregation
   - Request tracing between services
   - Distributed tracing
 
-### Performance
+# Performance
 - Queries optimization
 - Implementation of caching
 
-### Segurança
+# Security
 - Rate limiting
 - Improved authentication and authorization
 - Protection against DDoS
-
 
 ## Support
 
