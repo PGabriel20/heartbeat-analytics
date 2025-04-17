@@ -2,6 +2,41 @@
 
 Heartbeat Analytics é uma plataforma de analytics em tempo real construída com arquitetura de microserviços usando NestJS. A plataforma permite rastrear e analisar o comportamento dos usuários em websites através de eventos.
 
+## Dashboard
+
+### Visão Geral de Métricas
+![Dashboard Overview](./docs/images/dashboard-overview.png)
+*Dashboard mostrando métricas principais incluindo visitantes únicos, total de visitas, pageviews, taxa de rejeição e duração média da visita*
+
+### Análise Detalhada
+![Dashboard Details](./docs/images/dashboard-details.png)
+*Visualização detalhada mostrando fontes de tráfego, páginas de saída, distribuição geográfica e dados de dispositivos/navegadores*
+
+## Principais Recursos do Dashboard
+
+- **Métricas**:
+  - Visitantes únicos
+  - Total de visitas
+  - Total de pageviews
+  - Views por visita
+  - Taxa de rejeição
+  - Duração média da visita
+
+- **Análise de Fontes**:
+  - Tráfego direto
+  - Busca orgânica (Google)
+  - Referências (Hacker News, Twitter, GitHub)
+
+- **Dados Geográficos**:
+  - Distribuição por cidades
+  - Cobertura global
+  - Análise por região
+
+- **Informações Técnicas**:
+  - Distribuição de navegadores
+  - Tipos de dispositivos
+  - Sistemas operacionais
+
 ## Arquitetura
 
 O projeto é composto por três componentes principais:
@@ -31,7 +66,7 @@ Microserviço responsável por processar e agregar métricas:
 
 - Consome eventos do RabbitMQ
 - Mantém estado de visitantes e sessões
-- Calcula métricas em tempo real
+- Calcula e armazena histórico de métricas
 - Fornece API para consulta de métricas
 - Armazena métricas agregadas no PostgreSQL
 
