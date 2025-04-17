@@ -5,11 +5,13 @@ Heartbeat Analytics é uma plataforma de analytics em tempo real construída com
 ## Dashboard
 
 ### Visão Geral de Métricas
-![Dashboard Overview](./docs/images/dashboard-overview.png)
+![Dashboard Overview](./docs/images/dashboard-overview-top.png)
+
 *Dashboard mostrando métricas principais incluindo visitantes únicos, total de visitas, pageviews, taxa de rejeição e duração média da visita*
 
 ### Análise Detalhada
 ![Dashboard Details](./docs/images/dashboard-details.png)
+
 *Visualização detalhada mostrando fontes de tráfego, páginas de saída, distribuição geográfica e dados de dispositivos/navegadores*
 
 ## Principais Recursos do Dashboard
