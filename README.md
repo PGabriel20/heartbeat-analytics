@@ -147,18 +147,32 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
-## Test
 
-```bash
-# unit tests
-$ pnpm run test
+## Roadmap
 
-# e2e tests
-$ pnpm run test:e2e
+As seguintes features estão planejadas para implementação futura:
 
-# test coverage
-$ pnpm run test:cov
-```
+### Resiliência e Escalabilidade
+- **Circuit Breaker**: Implementação de padrão circuit breaker para melhor tolerância a falhas
+- **Replicação de Banco de Dados**: Separação entre banco Master (Write) e Réplicas (Read) para melhor performance
+- **API Gateway**: Centralização do roteamento de requisições e políticas de segurança
+
+### Observabilidade
+- **Logging Aprimorado**: 
+  - Implementação de logging estruturado
+  - Agregação centralizada de logs
+  - Rastreamento de requisições entre serviços
+  - Tracing distribuído
+
+### Performance
+- Otimização de queries
+- Implementação de caching
+
+### Segurança
+- Rate limiting
+- Autenticação e autorização aprimoradas
+- Proteção contra DDoS
+
 
 ## Support
 
