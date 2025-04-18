@@ -55,6 +55,9 @@ export class Event {
   @Column({ name: 'operating_system', nullable: true })
   operatingSystem: string;
 
+  @Column({ name: 'device_type', nullable: true })
+  deviceType: string;
+
   @Column({ nullable: true })
   location: string;
 

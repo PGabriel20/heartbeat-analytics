@@ -81,6 +81,8 @@ export class AnalyticsService {
       browser: event.user_agent,
       screenSize: event.screen_size,
       operatingSystem: event.operating_system,
+      deviceType: event.device_info.type,
+      pageUrl: event.page_url,
       location: event.location,
       triggeredAt: event.triggered_at,
     });

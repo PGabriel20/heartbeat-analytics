@@ -54,6 +54,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
                 "browser" varchar,
                 "screen_size" varchar,
                 "operating_system" varchar,
+                "device_type" varchar,
                 "location" varchar,
                 "triggered_at" TIMESTAMP NOT NULL,
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
