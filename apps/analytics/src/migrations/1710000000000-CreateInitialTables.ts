@@ -6,7 +6,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             CREATE TABLE "sites" (
-                "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+                "id" SERIAL PRIMARY KEY,
                 "domain" varchar NOT NULL UNIQUE,
                 "settings" jsonb,
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
@@ -16,8 +16,8 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
 
         await queryRunner.query(`
             CREATE TABLE "visitors" (
-                "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-                "site_id" uuid NOT NULL,
+                "id" SERIAL PRIMARY KEY,
+                "site_id" integer NOT NULL,
                 "external_id" varchar NOT NULL,
                 "first_seen" TIMESTAMP NOT NULL,
                 "last_seen" TIMESTAMP NOT NULL,
@@ -30,9 +30,9 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
 
         await queryRunner.query(`
             CREATE TABLE "sessions" (
-                "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-                "site_id" uuid NOT NULL,
-                "visitor_id" uuid NOT NULL,
+                "id" SERIAL PRIMARY KEY,
+                "site_id" integer NOT NULL,
+                "visitor_id" integer NOT NULL,
                 "external_id" varchar NOT NULL,
                 "duration" integer NOT NULL,
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
@@ -44,10 +44,10 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
 
         await queryRunner.query(`
             CREATE TABLE "events" (
-                "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-                "site_id" uuid NOT NULL,
-                "session_id" uuid NOT NULL,
-                "visitor_id" uuid NOT NULL,
+                "id" SERIAL PRIMARY KEY,
+                "site_id" integer NOT NULL,
+                "session_id" integer NOT NULL,
+                "visitor_id" integer NOT NULL,
                 "event_type" varchar NOT NULL,
                 "page_url" varchar,
                 "referrer_url" varchar,
@@ -66,8 +66,8 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
 
         await queryRunner.query(`
             CREATE TABLE "metrics" (
-                "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-                "site_id" uuid NOT NULL,
+                "id" SERIAL PRIMARY KEY,
+                "site_id" integer NOT NULL,
                 "value" jsonb NOT NULL,
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),

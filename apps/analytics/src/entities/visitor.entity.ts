@@ -3,11 +3,11 @@ import { Site } from './site.entity';
 
 @Entity('visitors')
 export class Visitor {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ name: 'site_id' })
-  siteId: string;
+  siteId: number;
 
   @ManyToOne(() => Site)
   @JoinColumn({ name: 'site_id' })

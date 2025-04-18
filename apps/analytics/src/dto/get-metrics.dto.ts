@@ -2,7 +2,7 @@ import { IsString, IsDateString, IsOptional, IsArray } from 'class-validator';
 
 export class GetMetricsDto {
   @IsString()
-  siteId: string;
+  siteId: number;
 
   @IsDateString()
   startDate: string;

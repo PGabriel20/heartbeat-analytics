@@ -4,18 +4,18 @@ import { Visitor } from './visitor.entity';
 
 @Entity('sessions')
 export class Session {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ name: 'site_id' })
-  siteId: string;
+  siteId: number;
 
   @ManyToOne(() => Site)
   @JoinColumn({ name: 'site_id' })
   site: Site;
 
   @Column({ name: 'visitor_id' })
-  visitorId: string;
+  visitorId: number;
 
   @ManyToOne(() => Visitor)
   @JoinColumn({ name: 'visitor_id' })

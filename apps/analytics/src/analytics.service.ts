@@ -92,7 +92,7 @@ export class AnalyticsService {
     //await this.calculateMetrics(site.id);
   }
 
-  private async calculateMetrics(siteId: string) {
+  private async calculateMetrics(siteId: number) {
     const now = new Date();
     const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -124,7 +124,7 @@ export class AnalyticsService {
     });
   }
 
-  private async calculateBaseMetrics(siteId: string) {
+  private async calculateBaseMetrics(siteId: number) {
     // Calculate pageviews
     const pageviews = await this.eventRepository.count({
       where: { siteId, eventType: 'pageview' },
@@ -178,7 +178,7 @@ export class AnalyticsService {
     };
   }
 
-  private async calculateDeviceSegmentation(siteId: string) {
+  private async calculateDeviceSegmentation(siteId: number) {
     const deviceTypes = ['mobile', 'tablet', 'desktop'];
     const metrics = {};
 
@@ -221,7 +221,7 @@ export class AnalyticsService {
     return metrics;
   }
 
-  private async calculateLocationSegmentation(siteId: string) {
+  private async calculateLocationSegmentation(siteId: number) {
     // Get all unique locations
     const locations = await this.eventRepository
       .createQueryBuilder('event')
@@ -262,7 +262,7 @@ export class AnalyticsService {
     return metrics;
   }
 
-  private async calculatePageSegmentation(siteId: string) {
+  private async calculatePageSegmentation(siteId: number) {
     // Get all unique pages
     const pages = await this.eventRepository
       .createQueryBuilder('event')
@@ -322,7 +322,7 @@ export class AnalyticsService {
   }
 
   async getMetrics(
-    siteId: string,
+    siteId: number,
     startDate: Date,
     endDate: Date,
     dimensions?: string[]
