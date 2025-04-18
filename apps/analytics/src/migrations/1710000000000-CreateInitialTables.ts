@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateInitialTables1710000000000 implements MigrationInterface {
-    name = 'CreateInitialTables1710000000000'
+  name = 'CreateInitialTables1710000000000';
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE "sites" (
                 "id" SERIAL PRIMARY KEY,
                 "domain" varchar NOT NULL UNIQUE,
@@ -14,7 +14,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "visitors" (
                 "id" SERIAL PRIMARY KEY,
                 "site_id" integer NOT NULL,
@@ -28,7 +28,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "sessions" (
                 "id" SERIAL PRIMARY KEY,
                 "site_id" integer NOT NULL,
@@ -42,7 +42,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "events" (
                 "id" SERIAL PRIMARY KEY,
                 "site_id" integer NOT NULL,
@@ -64,7 +64,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
             )
         `);
 
-        await queryRunner.query(`
+    await queryRunner.query(`
             CREATE TABLE "metrics" (
                 "id" SERIAL PRIMARY KEY,
                 "site_id" integer NOT NULL,
@@ -74,13 +74,13 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
                 CONSTRAINT "fk_metrics_site" FOREIGN KEY ("site_id") REFERENCES "sites"("id")
             )
         `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE "metrics"`);
-        await queryRunner.query(`DROP TABLE "events"`);
-        await queryRunner.query(`DROP TABLE "sessions"`);
-        await queryRunner.query(`DROP TABLE "visitors"`);
-        await queryRunner.query(`DROP TABLE "sites"`);
-    }
-} 
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE "metrics"`);
+    await queryRunner.query(`DROP TABLE "events"`);
+    await queryRunner.query(`DROP TABLE "sessions"`);
+    await queryRunner.query(`DROP TABLE "visitors"`);
+    await queryRunner.query(`DROP TABLE "sites"`);
+  }
+}

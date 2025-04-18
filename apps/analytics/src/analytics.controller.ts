@@ -14,7 +14,7 @@ export class AnalyticsController {
       query.siteId,
       new Date(query.startDate),
       new Date(query.endDate),
-      query.dimensions
+      query.dimensions,
     );
   }
 

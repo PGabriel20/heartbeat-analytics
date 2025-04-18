@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, MoreThan, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { Site } from './entities/site.entity';
 import { Session } from './entities/session.entity';
 import { Visitor } from './entities/visitor.entity';
@@ -24,10 +24,12 @@ export class AnalyticsService {
   ) {}
 
   async processEvent(event: EnrichedEventDto) {
-    console.log({rmqEvent: event})
+    console.log({ event });
 
     // 1. Ensure site exists
-    let site = await this.siteRepository.findOne({ where: { domain: event.domain } });
+    let site = await this.siteRepository.findOne({
+      where: { domain: event.domain },
+    });
     if (!site) {
       site = await this.siteRepository.save({
         domain: event.domain,
@@ -70,22 +72,18 @@ export class AnalyticsService {
       });
     }
 
-    try {
-      await this.eventRepository.save({
-        siteId: site.id,
-        sessionId: session.id,
-        visitorId: visitor.id,
-        eventType: event.event_type,
-        referrerUrl: event.referrer_url,
-        browser: event.user_agent,
-        screenSize: event.screen_size,
-        operatingSystem: event.operating_system,
-        location: event.location,
-        triggeredAt: event.triggered_at
-      });
-    } catch (error) {
-      console.error(error)      
-    }
+    await this.eventRepository.save({
+      siteId: site.id,
+      sessionId: session.id,
+      visitorId: visitor.id,
+      eventType: event.event_type,
+      referrerUrl: event.referrer_url,
+      browser: event.user_agent,
+      screenSize: event.screen_size,
+      operatingSystem: event.operating_system,
+      location: event.location,
+      triggeredAt: event.triggered_at,
+    });
     // // 4. Save event
 
     // // 5. Calculate and update metrics
@@ -94,8 +92,8 @@ export class AnalyticsService {
 
   private async calculateMetrics(siteId: number) {
     const now = new Date();
-    const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    // const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
+    // const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     // Base metrics (without segmentation)
     const baseMetrics = await this.calculateBaseMetrics(siteId);
@@ -119,7 +117,7 @@ export class AnalyticsService {
           device: deviceMetrics,
           location: locationMetrics,
           page: pageMetrics,
-        }
+        },
       },
     });
   }
@@ -155,7 +153,8 @@ export class AnalyticsService {
       })
       .getCount();
 
-    const bounceRate = totalSessions > 0 ? (bounceSessions / totalSessions) * 100 : 0;
+    const bounceRate =
+      totalSessions > 0 ? (bounceSessions / totalSessions) * 100 : 0;
 
     // Calculate average session duration
     const sessions = await this.sessionRepository.find({
@@ -167,7 +166,8 @@ export class AnalyticsService {
     sessions.forEach((session) => {
       totalDuration += session.duration;
     });
-    const avgSessionDuration = sessions.length > 0 ? totalDuration / sessions.length : 0;
+    const avgSessionDuration =
+      sessions.length > 0 ? totalDuration / sessions.length : 0;
 
     return {
       pageviews,
@@ -185,13 +185,13 @@ export class AnalyticsService {
     for (const deviceType of deviceTypes) {
       // Get visitors by device type
       const visitors = await this.visitorRepository.find({
-        where: { 
+        where: {
           siteId,
-          device: { type: deviceType }
-        }
+          device: { type: deviceType },
+        },
       });
 
-      const visitorIds = visitors.map(v => v.id);
+      const visitorIds = visitors.map((v) => v.id);
 
       // Get sessions for these visitors
       const sessions = await this.sessionRepository.find({
@@ -201,15 +201,16 @@ export class AnalyticsService {
 
       // Calculate metrics for this device type
       let totalDuration = 0;
-      let totalPageviews = 0;
+      // const totalPageviews = 0;
       const uniqueVisitors = visitors.length;
       const totalSessions = sessions.length;
-      
-      sessions.forEach(session => {
+
+      sessions.forEach((session) => {
         totalDuration += session.duration;
       });
 
-      const avgSessionDuration = sessions.length > 0 ? totalDuration / sessions.length : 0;
+      const avgSessionDuration =
+        sessions.length > 0 ? totalDuration / sessions.length : 0;
 
       metrics[deviceType] = {
         uniqueVisitors,
@@ -238,8 +239,8 @@ export class AnalyticsService {
         relations: ['session', 'visitor'],
       });
 
-      const uniqueVisitors = new Set(events.map(e => e.visitorId)).size;
-      const sessions = new Set(events.map(e => e.sessionId));
+      const uniqueVisitors = new Set(events.map((e) => e.visitorId)).size;
+      const sessions = new Set(events.map((e) => e.sessionId));
       const totalSessions = sessions.size;
 
       let totalDuration = 0;
@@ -250,7 +251,8 @@ export class AnalyticsService {
         totalDuration += session.duration;
       }
 
-      const avgSessionDuration = totalSessions > 0 ? totalDuration / totalSessions : 0;
+      const avgSessionDuration =
+        totalSessions > 0 ? totalDuration / totalSessions : 0;
 
       metrics[location] = {
         uniqueVisitors,
@@ -264,19 +266,19 @@ export class AnalyticsService {
 
   private async calculatePageSegmentation(siteId: number) {
     // Get all unique pages
-    const pages = await this.eventRepository
-      .createQueryBuilder('event')
-      .select('DISTINCT event.page_url')
-      .where('event.siteId = :siteId', { siteId })
-      .andWhere('event.eventType = :eventType', { eventType: 'pageview' })
-      .getRawMany();
-
+    // const pages = await this.eventRepository
+    //   .createQueryBuilder('event')
+    //   .select('DISTINCT event.page_url')
+    //   .where('event.siteId = :siteId', { siteId })
+    //   .andWhere('event.eventType = :eventType', { eventType: 'pageview' })
+    //   .getRawMany();
+    console.log(siteId);
     const metrics = {};
 
     // for (const { page_url } of pages) {
     //   const pageEvents = await this.eventRepository.find({
-    //     where: { 
-    //       siteId, 
+    //     where: {
+    //       siteId,
     //       eventType: 'pageview',
     //       page_url,
     //     },
@@ -325,7 +327,7 @@ export class AnalyticsService {
     siteId: number,
     startDate: Date,
     endDate: Date,
-    dimensions?: string[]
+    dimensions?: string[],
   ) {
     // Get metrics within the date range
     const metrics = await this.metricRepository.find({
@@ -350,7 +352,7 @@ export class AnalyticsService {
     }
 
     // Process metrics for the time range
-    const processedMetrics = metrics.map(metric => {
+    const processedMetrics = metrics.map((metric) => {
       const result: any = {
         timestamp: metric.value.timestamp,
         metrics: {
@@ -365,7 +367,7 @@ export class AnalyticsService {
       // Add requested dimension segments
       if (dimensions && dimensions.length > 0) {
         result.segments = {};
-        dimensions.forEach(dimension => {
+        dimensions.forEach((dimension) => {
           if (metric.value.segments && metric.value.segments[dimension]) {
             result.segments[dimension] = metric.value.segments[dimension];
           }
@@ -397,11 +399,11 @@ export class AnalyticsService {
       avgSessionDuration: 0,
     };
 
-    metrics.forEach(metric => {
+    metrics.forEach((metric) => {
       aggregated.pageviews += metric.metrics.pageviews;
       // Assuming uniqueVisitors in each metric contains unique IDs
-      metric.metrics.uniqueVisitors.forEach((visitor: string) => 
-        aggregated.uniqueVisitors.add(visitor)
+      metric.metrics.uniqueVisitors.forEach((visitor: string) =>
+        aggregated.uniqueVisitors.add(visitor),
       );
       aggregated.totalSessions += metric.metrics.totalSessions;
       aggregated.avgSessionDuration += metric.metrics.avgSessionDuration;
@@ -409,9 +411,11 @@ export class AnalyticsService {
 
     // Calculate averages
     if (metrics.length > 0) {
-      aggregated.bounceRate = metrics.reduce((acc, curr) => 
-        acc + curr.metrics.bounceRate, 0) / metrics.length;
-      aggregated.avgSessionDuration = aggregated.avgSessionDuration / metrics.length;
+      aggregated.bounceRate =
+        metrics.reduce((acc, curr) => acc + curr.metrics.bounceRate, 0) /
+        metrics.length;
+      aggregated.avgSessionDuration =
+        aggregated.avgSessionDuration / metrics.length;
     }
 
     // Convert Set to count for uniqueVisitors
@@ -419,4 +423,4 @@ export class AnalyticsService {
 
     return aggregated;
   }
-} 
+}

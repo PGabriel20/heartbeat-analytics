@@ -45,7 +45,7 @@ export class BaseEventDto {
 
 export class EnrichedEventDto extends BaseEventDto {
   @IsDate()
-  triggered_at: Date
+  triggered_at: Date;
 
   @IsDate()
   timestamp: Date;
@@ -61,4 +61,4 @@ export class EnrichedEventDto extends BaseEventDto {
     type: 'mobile' | 'tablet' | 'desktop';
     raw: string;
   };
-} 
+}

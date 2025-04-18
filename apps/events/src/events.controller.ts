@@ -28,12 +28,14 @@ export class EventsController {
 
   private parseUserAgent(userAgent: string) {
     // Basic device detection - in production you might want to use a proper UA parser library
-    const isMobile = /mobile|android|iphone|ipad|ipod/i.test(userAgent.toLowerCase());
+    const isMobile = /mobile|android|iphone|ipad|ipod/i.test(
+      userAgent.toLowerCase(),
+    );
     const isTablet = /tablet|ipad/i.test(userAgent.toLowerCase());
-    
+
     return {
       type: isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop',
       raw: userAgent,
     } as const;
   }
-} 
+}

@@ -14,4 +14,4 @@ export class GetMetricsDto {
   @IsArray()
   @IsString({ each: true })
   dimensions?: string[]; // ['device', 'location', 'page']
-} 
+}

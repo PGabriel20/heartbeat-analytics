@@ -4,17 +4,19 @@ import { EventsModule } from './events.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(EventsModule);
-  
+
   app.enableCors({
     origin: '*',
     methods: 'POST',
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   app.setGlobalPrefix('v1');
 
