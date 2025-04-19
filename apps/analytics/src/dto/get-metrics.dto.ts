@@ -1,7 +1,7 @@
-import { IsString, IsDateString, IsOptional, IsArray } from 'class-validator';
+import { IsNumber, IsDateString, IsOptional, IsArray } from 'class-validator';
 
 export class GetMetricsDto {
-  @IsString()
+  @IsNumber()
   siteId: number;
 
   @IsDateString()
@@ -12,6 +12,5 @@ export class GetMetricsDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  dimensions?: string[]; // ['device', 'location', 'page']
+  dimensions?: string[];
 }

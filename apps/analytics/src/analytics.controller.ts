@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { AnalyticsService } from './analytics.service';
 import { EnrichedEventDto } from '@app/common';
-import { GetMetricsDto } from 'apps/analytics/src/dto/get-metrics.dto';
+import { GetMetricsDto } from './dto/get-metrics.dto';
 
 @Controller()
 export class AnalyticsController {

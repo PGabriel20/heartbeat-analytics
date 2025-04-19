@@ -3,12 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Site } from './site.entity';
 import { Visitor } from './visitor.entity';
+import { Event } from './event.entity';
 
 @Entity('sessions')
 export class Session {
@@ -34,6 +36,9 @@ export class Session {
 
   @Column()
   duration: number;
+
+  @OneToMany(() => Event, (event) => event.session)
+  events: Event[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

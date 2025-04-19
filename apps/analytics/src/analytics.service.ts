@@ -72,6 +72,7 @@ export class AnalyticsService {
       });
     }
 
+    // // 4. Save event
     await this.eventRepository.save({
       siteId: site.id,
       sessionId: session.id,
@@ -86,28 +87,57 @@ export class AnalyticsService {
       location: event.location,
       triggeredAt: event.triggered_at,
     });
-    // // 4. Save event
 
     // // 5. Calculate and update metrics
-    //await this.calculateMetrics(site.id);
+    await this.calculateMetrics(site.id);
   }
 
   private async calculateMetrics(siteId: number) {
     const now = new Date();
-    // const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
-    // const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
 
     // Base metrics (without segmentation)
-    const baseMetrics = await this.calculateBaseMetrics(siteId);
+    const baseMetrics = await this.calculateBaseMetrics(
+      siteId,
+      startOfDay,
+      endOfDay,
+    );
 
     // Device type segmentation
-    const deviceMetrics = await this.calculateDeviceSegmentation(siteId);
+    const deviceMetrics = await this.calculateDeviceSegmentation(
+      siteId,
+      startOfDay,
+      endOfDay,
+    );
 
     // Location segmentation
-    const locationMetrics = await this.calculateLocationSegmentation(siteId);
+    const locationMetrics = await this.calculateLocationSegmentation(
+      siteId,
+      startOfDay,
+      endOfDay,
+    );
 
     // Page segmentation
-    const pageMetrics = await this.calculatePageSegmentation(siteId);
+    const pageMetrics = await this.calculatePageSegmentation(
+      siteId,
+      startOfDay,
+      endOfDay,
+    );
+
+    console.log(deviceMetrics, locationMetrics, pageMetrics);
 
     // Save all metrics
     await this.metricRepository.save({
@@ -124,26 +154,44 @@ export class AnalyticsService {
     });
   }
 
-  private async calculateBaseMetrics(siteId: number) {
+  private async calculateBaseMetrics(
+    siteId: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
     // Calculate pageviews
     const pageviews = await this.eventRepository.count({
-      where: { siteId, eventType: 'pageview' },
+      where: {
+        siteId,
+        eventType: 'pageview',
+        triggeredAt: Between(startDate, endDate),
+      },
     });
 
     // Calculate unique visitors
     const uniqueVisitors = await this.visitorRepository.count({
-      where: { siteId },
+      where: {
+        siteId,
+        firstSeen: Between(startDate, endDate),
+      },
     });
 
     // Calculate total sessions
     const totalSessions = await this.sessionRepository.count({
-      where: { siteId },
+      where: {
+        siteId,
+        createdAt: Between(startDate, endDate),
+      },
     });
 
     // Calculate bounce rate
     const bounceSessions = await this.sessionRepository
       .createQueryBuilder('session')
       .where('session.site_id = :siteId', { siteId })
+      .andWhere('session.createdAt BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
       .andWhere((qb) => {
         const subQuery = qb
           .subQuery()
@@ -151,7 +199,7 @@ export class AnalyticsService {
           .from(Event, 'event')
           .where('event.session_id = session.id')
           .getQuery();
-        return 'EXISTS (' + subQuery + ' HAVING COUNT(*) = 1)';
+        return `(${subQuery}) = 1`;
       })
       .getCount();
 
@@ -160,7 +208,10 @@ export class AnalyticsService {
 
     // Calculate average session duration
     const sessions = await this.sessionRepository.find({
-      where: { siteId },
+      where: {
+        siteId,
+        createdAt: Between(startDate, endDate),
+      },
       relations: ['events'],
     });
 
@@ -180,7 +231,11 @@ export class AnalyticsService {
     };
   }
 
-  private async calculateDeviceSegmentation(siteId: number) {
+  private async calculateDeviceSegmentation(
+    siteId: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
     const deviceTypes = ['mobile', 'tablet', 'desktop'];
     const metrics = {};
 
@@ -190,6 +245,7 @@ export class AnalyticsService {
         where: {
           siteId,
           device: { type: deviceType },
+          firstSeen: Between(startDate, endDate),
         },
       });
 
@@ -224,20 +280,32 @@ export class AnalyticsService {
     return metrics;
   }
 
-  private async calculateLocationSegmentation(siteId: number) {
+  private async calculateLocationSegmentation(
+    siteId: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
     // Get all unique locations
     const locations = await this.eventRepository
       .createQueryBuilder('event')
       .select('DISTINCT event.location')
       .where('event.siteId = :siteId', { siteId })
       .andWhere('event.location IS NOT NULL')
+      .andWhere('event.triggeredAt BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
       .getRawMany();
 
     const metrics = {};
 
     for (const { location } of locations) {
       const events = await this.eventRepository.find({
-        where: { siteId, location },
+        where: {
+          siteId,
+          location,
+          triggeredAt: Between(startDate, endDate),
+        },
         relations: ['session', 'visitor'],
       });
 
@@ -248,9 +316,14 @@ export class AnalyticsService {
       let totalDuration = 0;
       for (const sessionId of sessions) {
         const session = await this.sessionRepository.findOne({
-          where: { id: sessionId },
+          where: {
+            id: sessionId,
+            createdAt: Between(startDate, endDate),
+          },
         });
-        totalDuration += session.duration;
+        if (session) {
+          totalDuration += session.duration;
+        }
       }
 
       const avgSessionDuration =
@@ -266,61 +339,72 @@ export class AnalyticsService {
     return metrics;
   }
 
-  private async calculatePageSegmentation(siteId: number) {
+  private async calculatePageSegmentation(
+    siteId: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
     // Get all unique pages
-    // const pages = await this.eventRepository
-    //   .createQueryBuilder('event')
-    //   .select('DISTINCT event.page_url')
-    //   .where('event.siteId = :siteId', { siteId })
-    //   .andWhere('event.eventType = :eventType', { eventType: 'pageview' })
-    //   .getRawMany();
-    console.log(siteId);
+    const pages = await this.eventRepository
+      .createQueryBuilder('event')
+      .select('DISTINCT event.page_url')
+      .where('event.siteId = :siteId', { siteId })
+      .andWhere('event.eventType = :eventType', { eventType: 'pageview' })
+      .andWhere('event.triggeredAt BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .getRawMany();
+
     const metrics = {};
 
-    // for (const { page_url } of pages) {
-    //   const pageEvents = await this.eventRepository.find({
-    //     where: {
-    //       siteId,
-    //       eventType: 'pageview',
-    //       page_url,
-    //     },
-    //     relations: ['session', 'visitor'],
-    //   });
+    for (const { page_url } of pages) {
+      const pageEvents = await this.eventRepository.find({
+        where: {
+          siteId,
+          eventType: 'pageview',
+          pageUrl: page_url,
+          triggeredAt: Between(startDate, endDate),
+        },
+        relations: ['session', 'visitor'],
+      });
 
-    //   const uniqueVisitors = new Set(pageEvents.map(e => e.visitorId)).size;
-    //   const sessions = new Set(pageEvents.map(e => e.sessionId));
-    //   const totalSessions = sessions.size;
-    //   const pageviews = pageEvents.length;
+      const uniqueVisitors = new Set(pageEvents.map((e) => e.visitorId)).size;
+      const sessions = new Set(pageEvents.map((e) => e.sessionId));
+      const totalSessions = sessions.size;
+      const pageviews = pageEvents.length;
 
-    //   // Calculate average time on page
-    //   let totalTimeOnPage = 0;
-    //   let validTimeOnPageCount = 0;
+      // Calculate average time on page
+      let totalTimeOnPage = 0;
+      let validTimeOnPageCount = 0;
 
-    //   for (const event of pageEvents) {
-    //     const nextEvent = await this.eventRepository.findOne({
-    //       where: {
-    //         sessionId: event.sessionId,
-    //         createdAt: MoreThan(event.createdAt),
-    //       },
-    //       order: { createdAt: 'ASC' },
-    //     });
+      for (const event of pageEvents) {
+        const nextEvent = await this.eventRepository.findOne({
+          where: {
+            sessionId: event.sessionId,
+            triggeredAt: Between(event.triggeredAt, endDate),
+          },
+          order: { triggeredAt: 'ASC' },
+        });
 
-    //     if (nextEvent) {
-    //       const timeOnPage = nextEvent.createdAt.getTime() - event.createdAt.getTime();
-    //       totalTimeOnPage += timeOnPage;
-    //       validTimeOnPageCount++;
-    //     }
-    //   }
+        if (nextEvent) {
+          const timeOnPage =
+            nextEvent.triggeredAt.getTime() - event.triggeredAt.getTime();
+          totalTimeOnPage += timeOnPage;
+          validTimeOnPageCount++;
+        }
+      }
 
-    //   const avgTimeOnPage = validTimeOnPageCount > 0 ? totalTimeOnPage / validTimeOnPageCount : 0;
+      const avgTimeOnPage =
+        validTimeOnPageCount > 0 ? totalTimeOnPage / validTimeOnPageCount : 0;
 
-    //   metrics[page_url] = {
-    //     pageviews,
-    //     uniqueVisitors,
-    //     totalSessions,
-    //     avgTimeOnPage,
-    //   };
-    // }
+      metrics[page_url] = {
+        pageviews,
+        uniqueVisitors,
+        totalSessions,
+        avgTimeOnPage,
+      };
+    }
 
     return metrics;
   }
@@ -395,7 +479,7 @@ export class AnalyticsService {
   private aggregateMetrics(metrics: any[]) {
     const aggregated = {
       pageviews: 0,
-      uniqueVisitors: new Set(),
+      uniqueVisitors: new Set<string>(),
       totalSessions: 0,
       bounceRate: 0,
       avgSessionDuration: 0,
@@ -421,8 +505,10 @@ export class AnalyticsService {
     }
 
     // Convert Set to count for uniqueVisitors
-    // aggregated.uniqueVisitors = aggregated.uniqueVisitors.size;
-
-    return aggregated;
+    const uniqueVisitorsCount = aggregated.uniqueVisitors.size;
+    return {
+      ...aggregated,
+      uniqueVisitors: uniqueVisitorsCount,
+    };
   }
 }
