@@ -23,6 +23,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/heartbeat-analytics/test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
+    "migration:drop": "npm run typeorm migration:run -- -d apps/analytics/src/config/typeorm.config.ts --dropSchema=true",
     "migration:run": "npm run typeorm migration:run -- -d apps/analytics/src/config/typeorm.config.ts",
     "migration:revert": "npm run typeorm migration:revert -- -d apps/analytics/src/config/typeorm.config.ts"
   },
