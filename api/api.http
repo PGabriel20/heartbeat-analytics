@@ -1,8 +1,9 @@
-@baseUrl = http://localhost:3000/v1
-@domain = example.com
+@eventsServiceUrl = http://localhost:3000/v1
+@analyticsServiceUrl = http://localhost:3001/v1
+        @domain = example.com
 
 ### Enviar evento de pageview
-POST {{baseUrl}}/intake
+POST {{eventsServiceUrl}}/intake
 Content-Type: application/json
 
 {
@@ -20,7 +21,7 @@ Content-Type: application/json
 }
 
 ### Enviar evento de clique
-POST {{baseUrl}}/intake
+POST {{eventsServiceUrl}}/intake
 Content-Type: application/json
 
 {
@@ -36,7 +37,7 @@ Content-Type: application/json
 }
 
 ### Enviar evento de formulário
-POST {{baseUrl}}/intake
+POST {{eventsServiceUrl}}/intake
 Content-Type: application/json
 
 {
@@ -52,7 +53,7 @@ Content-Type: application/json
 }
 
 ### Enviar evento de scroll
-POST {{baseUrl}}/intake
+POST {{eventsServiceUrl}}/intake
 Content-Type: application/json
 
 {
@@ -65,4 +66,7 @@ Content-Type: application/json
         "scroll_depth": 75,
         "scroll_direction": "down"
     }
-} 
+}
+
+### Buscar métricas diárias
+GET {{analyticsServiceUrl}}/metrics?siteId=1&startDate=2024-04-01&endDate=2024-04-18&dimensions[]=device&dimensions[]=location&dimensions[]=page 

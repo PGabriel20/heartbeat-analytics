@@ -14,13 +14,8 @@ export class BaseEventDto {
   domain: string;
 
   @IsString()
-  @IsUrl()
+  // @IsUrl()
   page_url: string;
-
-  @IsString()
-  @IsUrl()
-  @IsOptional()
-  referrer_url?: string;
 
   @IsString()
   @IsOptional()
@@ -55,6 +50,11 @@ export class EnrichedEventDto extends BaseEventDto {
 
   @IsString()
   user_agent: string;
+
+  @IsString()
+  @IsUrl()
+  @IsOptional()
+  referrer_url?: string;
 
   @IsObject()
   device_info: {

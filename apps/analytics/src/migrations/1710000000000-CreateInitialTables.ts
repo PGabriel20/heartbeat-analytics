@@ -56,6 +56,7 @@ export class CreateInitialTables1710000000000 implements MigrationInterface {
                 "operating_system" varchar,
                 "device_type" varchar,
                 "location" varchar,
+                "metadata" jsonb,
                 "triggered_at" TIMESTAMP NOT NULL,
                 "created_at" TIMESTAMP NOT NULL DEFAULT now(),
                 "updated_at" TIMESTAMP NOT NULL DEFAULT now(),

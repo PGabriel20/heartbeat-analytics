@@ -64,6 +64,9 @@ export class Event {
   @Column({ name: 'triggered_at', type: 'timestamp' })
   triggeredAt: Date;
 
+  @Column('jsonb', { nullable: true })
+  metadata: Record<string, any>;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
